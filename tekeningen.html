@@ -49,8 +49,8 @@
         }
         .gallery img {
             width: 100%;
-            height: 300px; /* fixed height for uniformity */
-            object-fit: cover; /* ensures all images have the same aspect ratio */
+            height: 300px; /* Vaste hoogte voor alle tekeningen */
+            object-fit: cover; /* Zorgt ervoor dat de afbeelding proportioneel wordt weergegeven */
             border: 2px solid #ddd;
             border-radius: 5px;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
@@ -70,8 +70,8 @@
 
     <script>
         const owner = 'fotografie1'; // Vervang door je GitHub-gebruikersnaam
-        const repo = 'portfolio';     // Vervang door je repositorynaam
-        const folder = 'tekeningen';       // Map waar de tekeningen staan
+        const repo = 'portfolio';    // Vervang door je repositorynaam
+        const folder = 'tekeningen'; // Map waar de tekeningen staan
 
         async function fetchImages() {
             const url = `https://api.github.com/repos/${owner}/${repo}/contents/${folder}`;
@@ -87,32 +87,30 @@
                         const img = document.createElement('img');
                         img.src = file.download_url;
                         img.alt = file.name;
-                        img.dataset.originalWidth = file.width; // Store the original width of the image (if available)
-                        img.dataset.originalHeight = file.height; // Store the original height of the image (if available)
-                        
-                        // Add event listeners for hover effect
+
+                        // Event listener voor hoveren
                         img.addEventListener('mouseenter', function() {
                             const originalWidth = img.naturalWidth;
                             const originalHeight = img.naturalHeight;
-                            const maxWidth = window.innerWidth; // Maximum allowed width is the screen width
+                            const maxWidth = window.innerWidth; // Maximale breedte = breedte van het scherm
                             const scaleFactor = originalWidth / originalHeight;
 
-                            // Calculate the new width and make sure it's less than screen width
+                            // Bereken de nieuwe breedte en zorg ervoor dat deze niet groter is dan het scherm
                             let newWidth = originalWidth;
                             if (newWidth > maxWidth) {
                                 newWidth = maxWidth;
                             }
 
-                            // Apply the new width while keeping the aspect ratio
+                            // Pas de nieuwe breedte toe en behoud de hoogte van 300px
                             img.style.width = `${newWidth}px`;
-                            img.style.height = `${newWidth / scaleFactor}px`;
-                            img.style.objectFit = 'contain'; // Ensure the aspect ratio is preserved
+                            img.style.height = '300px'; // Behoudt de hoogte van 300px
+                            img.style.objectFit = 'contain'; // Zorgt ervoor dat de afbeelding proportioneel wordt vergroot
                         });
 
                         img.addEventListener('mouseleave', function() {
                             img.style.width = '100%';
                             img.style.height = '300px';
-                            img.style.objectFit = 'cover'; // Restore the original object-fit
+                            img.style.objectFit = 'cover'; // Herstel het object-fit naar 'cover' wanneer je weggaat
                         });
 
                         gallery.appendChild(img);
