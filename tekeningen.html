@@ -49,12 +49,17 @@
         }
         .gallery img {
             width: 100%;
-            height: 300px; /* Vaste hoogte voor alle tekeningen */
-            object-fit: cover; /* Zorgt ervoor dat de afbeelding proportioneel wordt weergegeven */
+            height: 300px; /* fixed height for uniformity */
+            object-fit: cover; /* ensures all images have the same aspect ratio */
             border: 2px solid #ddd;
             border-radius: 5px;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease, object-fit 0.3s ease, width 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, object-fit 0.3s ease;
+        }
+        .gallery img:hover {
+            transform: scale(1.1);
+            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
+            object-fit: contain; /* restores original aspect ratio on hover */
         }
     </style>
 </head>
@@ -70,8 +75,8 @@
 
     <script>
         const owner = 'fotografie1'; // Vervang door je GitHub-gebruikersnaam
-        const repo = 'portfolio';    // Vervang door je repositorynaam
-        const folder = 'tekeningen'; // Map waar de tekeningen staan
+        const repo = 'portfolio';     // Vervang door je repositorynaam
+        const folder = 'tekeningen';       // Map waar de tekeningen staan
 
         async function fetchImages() {
             const url = `https://api.github.com/repos/${owner}/${repo}/contents/${folder}`;
@@ -87,32 +92,6 @@
                         const img = document.createElement('img');
                         img.src = file.download_url;
                         img.alt = file.name;
-
-                        // Event listener voor hoveren
-                        img.addEventListener('mouseenter', function() {
-                            const originalWidth = img.naturalWidth;
-                            const originalHeight = img.naturalHeight;
-                            const maxWidth = window.innerWidth; // Maximale breedte = breedte van het scherm
-                            const scaleFactor = originalWidth / originalHeight;
-
-                            // Bereken de nieuwe breedte en zorg ervoor dat deze niet groter is dan het scherm
-                            let newWidth = originalWidth;
-                            if (newWidth > maxWidth) {
-                                newWidth = maxWidth;
-                            }
-
-                            // Pas de nieuwe breedte toe en behoud de hoogte van 300px
-                            img.style.width = `${newWidth}px`;
-                            img.style.height = '300px'; // Behoudt de hoogte van 300px
-                            img.style.objectFit = 'contain'; // Zorgt ervoor dat de afbeelding proportioneel wordt vergroot
-                        });
-
-                        img.addEventListener('mouseleave', function() {
-                            img.style.width = '100%';
-                            img.style.height = '300px';
-                            img.style.objectFit = 'cover'; // Herstel het object-fit naar 'cover' wanneer je weggaat
-                        });
-
                         gallery.appendChild(img);
                     }
                 });
