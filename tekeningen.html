@@ -4,64 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tekeningen | Portfolio</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            text-align: center;
-        }
-        nav {
-            background-color: #333;
-            padding: 10px;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-        nav ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-        nav ul li {
-            display: inline;
-        }
-        nav ul li a {
-            text-decoration: none;
-            color: white;
-            font-size: 18px;
-            transition: color 0.3s ease;
-        }
-        nav ul li a:hover {
-            color: #ffcc00;
-        }
-        h1 {
-            margin: 20px 0;
-        }
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 10px;
-            padding: 20px;
-        }
-        .gallery img {
-            width: 100%;
-            height: 300px; /* fixed height for uniformity */
-            object-fit: cover; /* ensures all images have the same aspect ratio */
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease, object-fit 0.3s ease;
-        }
-        .gallery img:hover {
-            transform: scale(1.1);
-            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.2);
-            object-fit: contain; /* restores original aspect ratio on hover */
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <nav>
@@ -79,26 +22,74 @@
         const folder = 'tekeningen';       // Map waar de tekeningen staan
 
         async function fetchImages() {
-            const url = `https://api.github.com/repos/${owner}/${repo}/contents/${folder}`;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Kan tekeningen niet ophalen.');
-                
-                const files = await response.json();
-                const gallery = document.getElementById('gallery');
-                
-                files.forEach(file => {
-                    if (file.type === 'file' && /\.(png|jpe?g|gif|webp)$/i.test(file.name)) {
-                        const img = document.createElement('img');
-                        img.src = file.download_url;
-                        img.alt = file.name;
-                        gallery.appendChild(img);
-                    }
+    const url = `https://api.github.com/repos/${owner}/${repo}/contents/${folder}`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Kan afbeeldingen niet ophalen.');
+        
+        const files = await response.json();
+        const gallery = document.getElementById('gallery');
+        
+        files.forEach(file => {
+            if (file.type === 'file' && /\.(png|jpe?g|gif|webp)$/i.test(file.name)) {
+                const img = document.createElement('img');
+                img.src = file.download_url;
+                img.alt = file.name;
+                img.addEventListener('mouseover', function() {
+                    const preview = document.getElementById('preview');
+                    preview.src = img.src; // Laad de afbeelding in de preview
+                    preview.style.display = 'block'; // Maak de preview zichtbaar
+                    positionPreview(preview, img); // Zorg ervoor dat de preview binnen het scherm valt
                 });
-            } catch (error) {
-                console.error(error);
+                img.addEventListener('mouseout', function() {
+                    const preview = document.getElementById('preview');
+                    preview.style.display = 'none'; // Verberg de preview wanneer de muis weg is
+                });
+                gallery.appendChild(img);
             }
-        }
+        });
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+function positionPreview(preview, img) {
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const imgWidth = preview.naturalWidth;
+    const imgHeight = preview.naturalHeight;
+
+    // Controleer of de afbeelding breder is dan het scherm
+    if (imgWidth > screenWidth) {
+        preview.style.width = '100vw'; // Zet de breedte van de afbeelding gelijk aan de schermbreedte
+        preview.style.height = 'auto'; // Laat de hoogte automatisch aanpassen aan de aspect ratio
+    } else {
+        preview.style.width = 'auto';
+        preview.style.height = 'auto';
+    }
+
+    // Zorg ervoor dat de afbeelding niet buiten het scherm valt aan de zijkanten
+    let leftPosition = (screenWidth - preview.offsetWidth) / 2;
+    
+    // Als de afbeelding rechts buiten het scherm valt, verschuif het naar links
+    if (img.getBoundingClientRect().right > screenWidth) {
+        leftPosition = screenWidth - preview.offsetWidth - 10; // Zorg ervoor dat de preview naar links schuift
+    }
+    // Als de afbeelding links buiten het scherm valt, verschuif het naar rechts
+    else if (img.getBoundingClientRect().left < 0) {
+        leftPosition = 10; // Zorg ervoor dat de preview naar rechts verschuift
+    }
+
+    preview.style.left = `${leftPosition}px`;
+
+    // Zorg ervoor dat de afbeelding niet buiten het scherm valt aan de bovenkant of onderkant
+    if (preview.offsetHeight > screenHeight) {
+        preview.style.top = '0';
+    } else {
+        preview.style.top = `${(screenHeight - preview.offsetHeight) / 2}px`; // Centraal positioneren
+    }
+}
+
 
         fetchImages();
     </script>
